@@ -1,0 +1,11 @@
+language: generic
+
+services:
+  - docker
+
+env:
+  - IMAGE=nikoheikkila/utility-belt
+
+install:
+  - docker build -t ${IMAGE} .
+  - docker tag ${IMAGE}:latest ${IMAGE}:${TRAVIS_BRANCH}
