@@ -6,6 +6,12 @@ services:
 env:
   - IMAGE=nikoheikkila/utility-belt
 
-install:
+script:
   - docker build -t ${IMAGE} .
   - docker tag ${IMAGE}:latest ${IMAGE}:${TRAVIS_BRANCH}
+
+deploy:
+  provider: script
+  script: bash push.sh
+  on:
+    tags: true
