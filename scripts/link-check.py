@@ -6,8 +6,6 @@ import click
 from requests_html import HTMLSession
 from typing import Dict
 
-session = HTMLSession()
-
 
 def is_outbound_link(link: str) -> bool:
     return re.fullmatch("^https?://(.+)$", link) is not None
@@ -31,4 +29,5 @@ def main(url):
 
 
 if __name__ == "__main__":
+    session = HTMLSession()
     sys.exit(main())
