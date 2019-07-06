@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
-docker push "${IMAGE}"
+echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+docker push ${IMAGE}
