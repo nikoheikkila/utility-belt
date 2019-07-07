@@ -34,6 +34,15 @@ def check_link_health(link: str) -> LinkStatus:
     """
     response = session.head(link, allow_redirects=True, headers=headers)
 
+    # Some websites block HEAD requests using 4xx statuses.
+    if response.status_code in (404, 405):
+        response = session.get(link, headers=headers)
+
+    # Handle makeshift statuses from LinkedIn.
+    # Let's assume these links are always OK.
+    if response.status_code == 999:
+        return (link, 200)
+
     return (link, response.status_code)
 
 
