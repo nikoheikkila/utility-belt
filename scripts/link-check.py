@@ -1,30 +1,27 @@
-"""
-Checks a given URL for outbound links and their status.
-Good for detecting broken links on a web page.
-
-See link-check.py --help for usage.
-"""
-
 import sys
 import re
 import json
 import click
+import meta
 
 from requests_html import HTMLSession
 from typing import Dict
 
 LinkStatus = Dict[str, str]
 
+headers = {"User-Agent": meta.get_repo(), "X-Version": meta.get_version()}
 
-def is_outbound_link(link: str) -> bool:
+
+def is_valid_url(link: str, pattern: str = "^https?://(.+)$") -> bool:
     """
-    Checks whether a link is outbound by checking the protocol.
-    Returns 'True' if the link is outbound, otherwise 'False'.
+    Checks whether a link is valid URL against regex.
+    Returns 'True' if the link is valid, otherwise 'False'.
 
-    :param link:
+    :param link:    Link to validate
+    :param pattern: Pattern to check URLs against (optional)
     :return bool:
     """
-    return re.fullmatch("^https?://(.+)$", link) is not None
+    return re.fullmatch(pattern, link) is not None
 
 
 def check_link_health(link: str) -> LinkStatus:
@@ -35,26 +32,37 @@ def check_link_health(link: str) -> LinkStatus:
     :param link:
     :return LinkStatus:
     """
-    response = session.head(link, allow_redirects=True)
+    response = session.head(link, allow_redirects=True, headers=headers)
 
     return {"url": link, "status": response.status_code}
 
 
 @click.command()
 @click.argument("url", type=str)
-def main(url: str) -> int:
+@click.option("--limit", type=int, default=50, help="Maximum amount of links to check (default: 50)")
+def main(url: str, limit: int) -> int:
     """
-    Main function.
-
-    :param url: URL as a command line argument
-    :return int:
+    Checks a given URL for outbound links and their status.
+    Good for detecting and fixing broken links on a web page.
     """
-    links = session.get(url).html.links
+    if not is_valid_url(url):
+        print(f"{url} is not a valid URL")
+        return 1
 
-    outbound_links = filter(is_outbound_link, links)
-    sanitized_links = map(check_link_health, outbound_links)
+    links = session.get(url, headers=headers).html.links
 
-    sys.stdout.write(json.dumps(list(sanitized_links)))
+    if not links:
+        print(f"Source of {url} does not contain any links")
+        return 2
+
+    outbound_links = [l for l in links if is_valid_url(l)]
+
+    if len(outbound_links) > limit:
+        outbound_links = outbound_links[:limit]
+
+    sanitized_links = [check_link_health(l) for l in outbound_links]
+
+    print(json.dumps(list(sanitized_links)))
 
     return 0
 
