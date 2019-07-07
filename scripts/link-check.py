@@ -1,10 +1,8 @@
 import sys
 import re
-import json
 import click
 import meta
 
-from requests import Response
 from requests.exceptions import ConnectionError
 from requests_html import HTMLSession
 from typing import Tuple
@@ -75,7 +73,7 @@ def main(url: str, limit: int) -> int:
 
     for l in outbound_links:
         link, status = check_link_health(l)
-        mark = "✔️" if accepted(status) else "❌"
+        mark = "💚" if accepted(status) else "💔"
         print(f"{link} {mark}  (status: {status})")
 
     return 0
