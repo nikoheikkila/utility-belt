@@ -1,5 +1,5 @@
 __REPO__ = "https://github.com/nikoheikkila/utility-belt"
-__VERSION__ = (0, 3, 0)
+__VERSION__ = (0, 4, 0)
 
 
 def get_version() -> str:
