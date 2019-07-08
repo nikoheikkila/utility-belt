@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  app:
+    image: 'nikoheikkila/utility-belt'
+    container_name: 'utility-belt'
+    build:
+      context: '.'
+      dockerfile: 'Dockerfile'
+      args:
+        PYTHON_ENV: 'development'
+    volumes:
+      - '.:/app'
